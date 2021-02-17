@@ -2,11 +2,8 @@ const messageBusPublisher = require("./component.messagebus.publisher.js");
 const delegate = require("component.delegate");
 const request = require("component.request");
 (async() => { 
-    const callingModule = "someapplicationinterestedinpublishevents";
-    delegate.register(callingModule, () => {
-        return { statusCode: 200, statusMessage: "Success", headers: {}, data: null };
-    });
-    await messageBusPublisher.handle(callingModule, {
+
+    await messageBusPublisher.handle({
         host: "localhost", 
         port: 3000
     });
@@ -20,8 +17,8 @@ const request = require("component.request");
         method: "GET",
         headers: { 
             username: "marchuanv",
-            fromhost: "localhost",
-            fromport: 6000
+            fromhost: "bob",
+            fromport: 999
         }, 
         data: JSON.stringify(newHost),
         retryCount: 1
@@ -38,8 +35,8 @@ const request = require("component.request");
          method: "GET",
          headers: { 
              username: "marchuanv",
-             fromhost: "localhost",
-             fromport: 6000
+             fromhost: "bob",
+             fromport: 999
          }, 
          data: `{ "channel":"apples" }`,
          retryCount: 1
@@ -47,6 +44,24 @@ const request = require("component.request");
      if (results.statusCode !== 200){
          throw "New Request To Unsecured Host To Register A Channel Test Failed";
      }
+
+    //New Subscribe Request To Unsecured Host Channel
+    results = await request.send({
+        host: newHost.host,
+        port: newHost.port,
+        path: "/apples/subscribe",
+        method: "POST",
+        headers: { 
+            username: "marchuanv",
+            fromhost: "bob",
+            fromport: 999
+        }, 
+        data: ``,
+        retryCount: 1
+    });
+    if (results.statusCode !== 200 && results.statusMessage !== "Subscribe Successful"){
+        throw "New Subscribe Request To Unsecured Host Channel Test Failed";
+    }
 
     //New Publish Request To Unsecured Host Channel
     results = await request.send({
@@ -56,13 +71,13 @@ const request = require("component.request");
         method: "POST",
         headers: { 
             username: "marchuanv",
-            fromhost: "localhost",
-            fromport: 6000
+            fromhost: "bob",
+            fromport: 999
         }, 
         data: ``,
         retryCount: 1
     });
-    if (results.statusCode !== 200 && results.statusMessage !== "Publish Success"){
+    if (results.statusCode !== 200 && results.statusMessage !== "Publish Successful"){
         throw "New Publish Request To Unsecured Host Channel Test Failed";
     }
 
