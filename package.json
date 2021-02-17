@@ -22,9 +22,9 @@
   "homepage": "https://github.com/marchuanv/component.messagebus.publisher#readme",
   "dependencies": {
     "utils": "git+https://github.com/marchuanv/utils.git",
-    "component.messagebus.host": "git+https://github.com/marchuanv/component.messagebus.host.git",
-    "component.request.handler.secure": "git+https://github.com/marchuanv/component.request.handler.secure.git",
-    "component.request.secure": "git+https://github.com/marchuanv/component.request.secure.git",
-    "component.delegate": "git+https://github.com/marchuanv/component.delegate.git"
+    "component.messagebus.host.channel": "git+https://github.com/marchuanv/component.messagebus.host.channel.git"
+  },
+  "devDependencies": {
+    "component.request": "git+https://github.com/marchuanv/component.request.git"
   }
 }
