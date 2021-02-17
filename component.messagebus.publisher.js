@@ -21,11 +21,9 @@ module.exports = {
               retryCount: 1
             });
           };
-          return { statusCode: 200, statusMessage: "Publish Successful", headers: {}, data: "" };
         });
         delegate.register(`component.messagebus.subscriber`, `global`, async ({ username, channel, fromhost, fromport }) => {
           subscribers.push({ username, channel, host: fromhost, port: fromport });
-          return { statusCode: 200, statusMessage: "Subscribe Successful", headers: {}, data: "" };
         });
         await messageBusHostChannel.handle({ host, port });
     }
