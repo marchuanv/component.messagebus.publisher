@@ -1,86 +1,29 @@
-const messageBusPublisher = require("./component.messagebus.publisher.js");
-const delegate = require("component.delegate");
-const request = require("component.request");
 (async() => { 
-
-    await messageBusPublisher.handle({
-        host: "localhost", 
-        port: 3000
-    });
-
-    //Register New Host
     const newHost = { host: "localhost", port: "6000" };
-    let results = await request.send({ 
-        host: "localhost",
-        port: 3000,
-        path: "/host",
-        method: "GET",
-        headers: { 
-            username: "marchuanv",
-            fromhost: "bob",
-            fromport: 999
-        }, 
-        data: JSON.stringify(newHost),
-        retryCount: 1
-    });
-    if (results.statusCode !== 200){
-        throw "New Request To Register New Host Test Failed";
+    const request = require("./test.request.js");
+    const messageBusPublisher = require("./component.messagebus.publisher.js");
+    await messageBusPublisher.handle({ host: "localhost", port: 3000 });
+    //Register New Host
+    let results = await request({ host:"localhost", port: 3000 }, "/host", JSON.stringify(newHost));
+    if (results.statusCode !== 200 || results.statusMessage !== "localhost started on port 6000"){
+        throw new Error("Publish To Channel On Host Test Failed");
     }
-
-     //New Request To Secured Host To Register A Channel
-     results = await request.send({
-         host: newHost.host,
-         port: newHost.port,
-         path: "/channel/register",
-         method: "GET",
-         headers: { 
-             username: "marchuanv",
-             fromhost: "bob",
-             fromport: 999
-         }, 
-         data: `{ "channel":"apples" }`,
-         retryCount: 1
-     });
-     if (results.statusCode !== 200){
-         throw "New Request To Unsecured Host To Register A Channel Test Failed";
-     }
-
-    //New Subscribe Request To Unsecured Host Channel
-    results = await request.send({
-        host: newHost.host,
-        port: newHost.port,
-        path: "/apples/subscribe",
-        method: "POST",
-        headers: { 
-            username: "marchuanv",
-            fromhost: "bob",
-            fromport: 999
-        }, 
-        data: ``,
-        retryCount: 1
-    });
-    if (results.statusCode !== 200 && results.statusMessage !== "Subscribe Successful"){
-        throw "New Subscribe Request To Unsecured Host Channel Test Failed";
+    //Register Channel On Host
+    results = await request(newHost, "/channel/register", JSON.stringify({ channel: "apples" }));
+    if (results.statusCode !== 200 || results.statusMessage !== "apples registered"){
+        throw new Error("Register Channel On Host Test Failed");
     }
-
-    //New Publish Request To Unsecured Host Channel
-    results = await request.send({
-        host: newHost.host,
-        port: newHost.port,
-        path: "/apples/publish",
-        method: "POST",
-        headers: { 
-            username: "marchuanv",
-            fromhost: "bob",
-            fromport: 999
-        }, 
-        data: ``,
-        retryCount: 1
-    });
-    if (results.statusCode !== 200 && results.statusMessage !== "Publish Successful"){
-        throw "New Publish Request To Unsecured Host Channel Test Failed";
+    //Publish To Channel On Host
+    results = await request(newHost, "/apples/publish", "");
+    if (results.statusCode !== 200 || results.statusMessage !== "Publish Successful"){
+        throw new Error("Publish To Channel On Host Test Failed");
     }
-
+    //Subscribe To Channel On Host
+    results = await request(newHost, "/apples/subscribe", "");
+    if (results.statusCode !== 200 || results.statusMessage !== "Subscribe Successful"){
+        throw new Error("Subscribe To Channel On Host Test Failed");
+    }
+    process.exit();
 })().catch((err)=>{
     console.error(err);
 });
